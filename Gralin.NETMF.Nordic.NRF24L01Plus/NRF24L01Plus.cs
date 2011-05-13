@@ -1,3 +1,29 @@
+#region Licence
+
+// Copyright (C) 2011 by Jakub Bartkowiak (Gralin)
+// 
+// MIT Licence
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+#endregion
+
 using System;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
@@ -5,15 +31,18 @@ using System.Threading;
 
 namespace Gralin.NETMF.Nordic
 {
+    /// <summary>
+    ///   Driver class for Nordic nRF24L01+ tranceiver
+    /// </summary>
     public class NRF24L01Plus
     {
         #region Delegates
 
+        public delegate void EventHandler();
+
         public delegate void OnDataRecievedHandler(byte[] data);
 
         public delegate void OnInterruptHandler(Status status);
-
-        public delegate void EventHandler();
 
         #endregion
 
@@ -24,12 +53,15 @@ namespace Gralin.NETMF.Nordic
         private SPI _spiPort;
 
         /// <summary>
-        /// Gets a value indicating whether module is in RX or TX mode.
+        ///   Gets a value indicating whether module is enabled (RX or TX mode).
         /// </summary>
-        public bool IsEnabled { get { return _cePin.Read(); } }
+        public bool IsEnabled
+        {
+            get { return _cePin.Read(); }
+        }
 
         /// <summary>
-        ///   Enable RX/TX by setting CE
+        ///   Enables the module
         /// </summary>
         public void Enable()
         {
@@ -38,7 +70,7 @@ namespace Gralin.NETMF.Nordic
         }
 
         /// <summary>
-        ///   Disable RX/TX by clearing CE
+        ///   Disables the module
         /// </summary>
         public void Disable()
         {
@@ -47,7 +79,7 @@ namespace Gralin.NETMF.Nordic
         }
 
         /// <summary>
-        ///   Open Pins and SPI port for NRF24L01Plus.
+        ///   Initializes SPI connection and control pins
         /// </summary>
         public void Initialize(SPI.SPI_module spi, Cpu.Pin chipSelectPin, Cpu.Pin chipEnablePin, Cpu.Pin interruptPin)
         {
@@ -70,7 +102,7 @@ namespace Gralin.NETMF.Nordic
         }
 
         /// <summary>
-        ///   Configure the nRF24L01 module basic settings
+        ///   Configure the module basic settings. Module needs to be initiaized.
         /// </summary>
         public void Configure(byte[] address, byte channel)
         {
@@ -80,7 +112,7 @@ namespace Gralin.NETMF.Nordic
             Execute(Commands.W_REGISTER, Registers.RF_CH,
                     new[]
                         {
-                            (byte) (channel & 0x7F)
+                            (byte) (channel & 0x7F) // channel is 7 bits
                         });
 
             // Enable dynamic payload length
@@ -129,22 +161,22 @@ namespace Gralin.NETMF.Nordic
         }
 
         /// <summary>
-        ///   Executes a command in NRF24L01 (for details see module datasheet)
+        ///   Executes a command in NRF24L01+ (for details see module datasheet)
         /// </summary>
         /// <param name = "command">Command</param>
-        /// <param name = "addres">Addres/Register to write to</param>
+        /// <param name = "addres">Register to write to</param>
         /// <param name = "data">Data to write</param>
-        /// <returns>Byte array with sizeof(Data)+1 rows. row 0 is status register from NRF24L01Plus</returns>
+        /// <returns>Response byte array. First byte is the status register</returns>
         public byte[] Execute(byte command, byte addres, byte[] data)
         {
             CheckIsInitialized();
 
             var wasEnabled = IsEnabled;
 
-            // This command requires module to be in power down od standby mode
+            // This command requires module to be in power down or standby mode
             if (command == Commands.W_REGISTER)
             {
-                Disable();   
+                Disable();
             }
 
             // Create SPI Buffers with Size of Data + 1 (For Command)
@@ -160,7 +192,6 @@ namespace Gralin.NETMF.Nordic
             // Do SPI Read/Write
             _spiPort.WriteRead(writeBuffer, readBuffer);
 
-
             // Enable module back if it was disabled
             if (command == Commands.W_REGISTER && wasEnabled)
             {
@@ -172,14 +203,14 @@ namespace Gralin.NETMF.Nordic
         }
 
         /// <summary>
-        /// Gets module basic status information
+        ///   Gets module basic status information
         /// </summary>
         public Status GetStatus()
         {
             CheckIsInitialized();
 
             var readBuffer = new byte[1];
-            _spiPort.WriteRead(new[] { Commands.NOP }, readBuffer);
+            _spiPort.WriteRead(new[] {Commands.NOP}, readBuffer);
 
             return new Status(readBuffer[0]);
         }
@@ -212,7 +243,7 @@ namespace Gralin.NETMF.Nordic
         {
             if (!_initialized)
             {
-                throw new InvalidOperationException("Initialize method needs to be called before configuring the module");
+                throw new InvalidOperationException("Initialize method needs to be called before this call");
             }
         }
 
@@ -234,7 +265,6 @@ namespace Gralin.NETMF.Nordic
             byte payloadCount = 0;
             var payloadCorrupted = false;
 
-            // Trigger event
             OnInterrupt(status);
 
             if (status.DataReady)
@@ -256,11 +286,11 @@ namespace Gralin.NETMF.Nordic
                     {
                         // Read payload data
                         payloads[payloadCount] = Execute(Commands.R_RX_PAYLOAD, 0x00, new byte[payloadLength[1]]);
-                        payloadCount++;   
+                        payloadCount++;
                     }
 
                     // Clear RX_DR bit 
-                    var result = Execute(Commands.W_REGISTER, Registers.STATUS, new[] { (byte)(1 << Bits.RX_DR) });
+                    var result = Execute(Commands.W_REGISTER, Registers.STATUS, new[] {(byte) (1 << Bits.RX_DR)});
                     status.Update(result[0]);
                 }
             }
@@ -300,9 +330,9 @@ namespace Gralin.NETMF.Nordic
                     var payload = payloads[i];
                     var payloadWithoutCommand = new byte[payload.Length - 1];
                     Array.Copy(payload, 1, payloadWithoutCommand, 0, payload.Length - 1);
-                    OnDataReceived(payloadWithoutCommand);   
+                    OnDataReceived(payloadWithoutCommand);
                 }
-            } 
+            }
             else if (status.DataSent)
             {
                 OnTransmitSuccess();
@@ -338,9 +368,7 @@ namespace Gralin.NETMF.Nordic
         }
 
         /// <summary>
-        ///   Event on nRF24L01 IRQ. Called before OnRecieve and OnTransmitSuccess. 
-        ///   You can set StopDefaultInterrupt to true to stop the default interrupt 
-        ///   from processing. You should ensure that the IRQ mask is correctly reset.
+        ///   Called on every IRQ interrupt
         /// </summary>
         public event OnInterruptHandler OnInterrupt = delegate { };
 

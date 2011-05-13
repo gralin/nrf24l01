@@ -1,16 +1,14 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Gralin.NETMF.Nordic.NRF24L01Plus")]
-[assembly: AssemblyDescription(".NET Micro Framewok Library for Nordic NRF24L01+ module")]
+[assembly: AssemblyDescription("Nordic NRF24L01+ driver for .NET Micro Framewok")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Jakub Bartkowiak")]
 [assembly: AssemblyProduct("Gralin.NETMF.Nordic.NRF24L01Plus")]
-[assembly: AssemblyCopyright("Copyright Jakub Bartkowiak ©  2011")]
+[assembly: AssemblyCopyright("Copyright (c) 2011 Jakub Bartkowiak (Gralin)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

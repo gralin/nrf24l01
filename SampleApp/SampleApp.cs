@@ -5,9 +5,6 @@ using Microsoft.SPOT.Hardware;
 
 namespace Gralin.NETMF.Nordic
 {
-    /// <summary>
-    ///   NRF24L01Plus Test Application
-    /// </summary>
     public class SampleApp
     {
         private readonly Cpu.Pin _chipEnablePin;
@@ -50,6 +47,9 @@ namespace Gralin.NETMF.Nordic
                     _interruptPin = (Cpu.Pin) 26;  // FEZ_Pin.Interrupt.UEXT10
                     _chipEnablePin = (Cpu.Pin) 48; // FEZ_Pin.Digital.UEXT6
                     _spi = SPI.SPI_module.SPI2;
+
+                    // IO46 pin is used instead of Cobra onboard led
+                    // because the led is connected in parallel with chipEnablePin
                     _led = new OutputPort((Cpu.Pin) 46, false);
                     break;
 
@@ -104,13 +104,13 @@ namespace Gralin.NETMF.Nordic
 
             if ((Fez) SystemInfo.SystemID.Model == Fez.Domino)
             {
-                _timer = new Timer(StartSending, null, new TimeSpan(0,0,0,5), new TimeSpan(0,0,0,5));
+                _timer = new Timer(StartSending, null, new TimeSpan(0), new TimeSpan(0,0,0,5));
             }
         }
 
         private void StartSending(object state)
         {
-            if (DateTime.Now.Subtract(_lastActivity).Seconds <= 4) return;
+            if (DateTime.Now.Subtract(_lastActivity).Seconds <= 5) return;
             _lastActivity = DateTime.Now;
             SendToRandomFez();
         }
