@@ -30,6 +30,8 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="AddressSlot.cs" />
+    <Compile Include="AddressWidth.cs" />
     <Compile Include="Commands.cs" />
     <Compile Include="Bits.cs" />
     <Compile Include="NRF24L01Plus.cs" />

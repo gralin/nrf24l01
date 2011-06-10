@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
@@ -63,11 +64,14 @@ namespace Gralin.NETMF.Nordic
 
         public void Run()
         {
-            const byte channel = 1;
-            var dominoAddress = new byte[] {0xEE, 0xDD, 0xCC, 0xBB, 0xAA};
-            var miniAddress = new byte[] {0xAA, 0xBB, 0xCC, 0xDD, 0xEE};
-            var cobraAddress = new byte[] {0xCC, 0xEE, 0xBB, 0xDD, 0xAA};
+            const byte channel = 10;
 
+            // all addresses need to have the same length
+            var dominoAddress = Encoding.UTF8.GetBytes("DOMIN");
+            var miniAddress   = Encoding.UTF8.GetBytes("MINI.");
+            var cobraAddress  = Encoding.UTF8.GetBytes("COBRA");
+
+            // here we determine on which device the code is running on
             switch ((Fez) SystemInfo.SystemID.Model)
             {
                 case Fez.Mini:
@@ -92,39 +96,50 @@ namespace Gralin.NETMF.Nordic
                     break;
             }
 
+            // here we attatch event listener
             _module.OnDataReceived += OnReceive;
             _module.OnTransmitFailed += OnSendFailure;
             _module.OnTransmitSuccess += OnSendSuccess;
 
+            // we nned to call Initialize() and Configure() befeore we start using the module
             _module.Initialize(_spi, _chipSelectPin, _chipEnablePin, _interruptPin);
             _module.Configure(_myAddress, channel);
+
+            // to start receiveing we need to call Enable(), call Disable() to stop/pause
             _module.Enable();
+
+
+            // example of reading your own address
+            var myAddress = _module.GetAddress(AddressSlot.Zero, 5);
+            Debug.Print("I am " + new string(Encoding.UTF8.GetChars(myAddress)));
 
             _lastActivity = DateTime.MinValue;
 
+            // Domino board is the one that starts the token passing and monitors if a token was lost
+            // The timer checks each 10 sec if any token has been received since last check
+            // If not than it might mean that a token was lost or never send - a new is created
+            // A token may be lost if a board is reseted before sending token back
             if ((Fez) SystemInfo.SystemID.Model == Fez.Domino)
             {
-                _timer = new Timer(StartSending, null, new TimeSpan(0), new TimeSpan(0,0,0,5));
+                _timer = new Timer(CreateToken, null, new TimeSpan(0, 0, 0, 10), new TimeSpan(0, 0, 0, 10));
             }
         }
 
-        private void StartSending(object state)
+        private void CreateToken(object state)
         {
-            if (DateTime.Now.Subtract(_lastActivity).Seconds <= 5) return;
+            if (DateTime.Now.Subtract(_lastActivity).Seconds < 10) return;
             _lastActivity = DateTime.Now;
-            SendToRandomFez();
+            SendTokenToFez();
         }
 
         private void OnSendSuccess()
         {
-            //Debug.Print("OK");
             _led.Write(false);
         }
 
         private void OnSendFailure()
         {
-            //Debug.Print("ERROR");
-            SendToRandomFez();
+            SendTokenToFez();
         }
 
         private void OnReceive(byte[] data)
@@ -132,16 +147,34 @@ namespace Gralin.NETMF.Nordic
             Debug.Print(data[0].ToString());
             _lastActivity = DateTime.Now;
             _currentValue = (byte) (data[0] + 1);
-            SendToRandomFez();
+            SendTokenToFez();
         }
 
-        private void SendToRandomFez()
+        private void SendTokenToFez()
+        {
+            //SendTokenToRandomFez();
+            SendTokenToNextFez();
+        }
+
+        private void SendTokenToRandomFez()
         {
             var nextIndex = _rand.Next(2);
             _led.Write(true);
 
+            // delay added to see LED blink
             Thread.Sleep(1000);
+
             _module.SendTo(_otherFez[nextIndex], new[] { _currentValue });
+        }
+
+        private void SendTokenToNextFez()
+        {
+            _led.Write(true);
+
+            // delay added to see LED blink
+            Thread.Sleep(1000);
+
+            _module.SendTo(_otherFez[0], new[] { _currentValue });
         }
     }
 }

@@ -46,7 +46,7 @@ namespace Gralin.NETMF.Nordic
 
         #endregion
 
-        private static readonly byte[] EmptyAddress = new byte[5];
+        private byte[] _slot0Address;
         private OutputPort _cePin;
         private bool _initialized;
         private InterruptPort _irqPin;
@@ -102,11 +102,14 @@ namespace Gralin.NETMF.Nordic
         }
 
         /// <summary>
-        ///   Configure the module basic settings. Module needs to be initiaized.
+        /// Configure the module basic settings. Module needs to be initiaized.
         /// </summary>
+        /// <param name="address">RF address (3-5 bytes). The width of this address determins the width of all addresses used for sending/receiving.</param>
+        /// <param name="channel">RF channel (0-127)</param>
         public void Configure(byte[] address, byte channel)
         {
             CheckIsInitialized();
+            AddressWidth.Check(address);
 
             // Set radio channel
             Execute(Commands.W_REGISTER, Registers.RF_CH,
@@ -153,11 +156,47 @@ namespace Gralin.NETMF.Nordic
                                     1 << Bits.MAX_RT)
                         });
 
+            // Set default address
+            Execute(Commands.W_REGISTER, Registers.SETUP_AW,
+                    new[]
+                        {
+                            AddressWidth.Get(address)
+                        });
+
             // Set module address
-            Execute(Commands.W_REGISTER, Registers.RX_ADDR_P1, address);
+            _slot0Address = address;
+            Execute(Commands.W_REGISTER, (byte)AddressSlot.Zero, address);
 
             // Setup, CRC enabled, Power Up, PRX
             SetReceiveMode();
+        }
+
+        /// <summary>
+        /// Set one of 6 available module addresses
+        /// </summary>
+        public void SetAddress(AddressSlot slot, byte[] address)
+        {
+            CheckIsInitialized();
+            AddressWidth.Check(address);
+            Execute(Commands.W_REGISTER, (byte)slot, address);
+
+            if (slot == AddressSlot.Zero)
+            {
+                _slot0Address = address;
+            }
+        }
+
+        /// <summary>
+        /// Read 1 of 6 available module addresses
+        /// </summary>
+        public byte[] GetAddress(AddressSlot slot, int width)
+        {
+            CheckIsInitialized();
+            AddressWidth.Check(width);
+            var read = Execute(Commands.R_REGISTER, (byte)slot, new byte[width]);
+            var result = new byte[read.Length - 1];
+            Array.Copy(read, 1, result, 0, result.Length);
+            return result;
         }
 
         /// <summary>
@@ -237,14 +276,6 @@ namespace Gralin.NETMF.Nordic
 
             // Pulse for CE -> starts the transmission.
             Enable();
-        }
-
-        private void CheckIsInitialized()
-        {
-            if (!_initialized)
-            {
-                throw new InvalidOperationException("Initialize method needs to be called before this call");
-            }
         }
 
         private void HandleInterrupt(uint data1, uint data2, DateTime dateTime)
@@ -355,8 +386,7 @@ namespace Gralin.NETMF.Nordic
 
         private void SetReceiveMode()
         {
-            // Clear the ack address
-            Execute(Commands.W_REGISTER, Registers.RX_ADDR_P0, EmptyAddress);
+            Execute(Commands.W_REGISTER, Registers.RX_ADDR_P0, _slot0Address);
 
             Execute(Commands.W_REGISTER, Registers.CONFIG,
                     new[]
@@ -365,6 +395,14 @@ namespace Gralin.NETMF.Nordic
                                     1 << Bits.CRCO |
                                     1 << Bits.PRIM_RX)
                         });
+        }
+
+        private void CheckIsInitialized()
+        {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("Initialize method needs to be called before this call");
+            }
         }
 
         /// <summary>
