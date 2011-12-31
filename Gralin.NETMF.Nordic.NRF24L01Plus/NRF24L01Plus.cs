@@ -51,6 +51,7 @@ namespace Gralin.NETMF.Nordic
         private bool _initialized;
         private InterruptPort _irqPin;
         private SPI _spiPort;
+        private bool _enabled;
 
         /// <summary>
         ///   Gets a value indicating whether module is enabled (RX or TX mode).
@@ -65,8 +66,8 @@ namespace Gralin.NETMF.Nordic
         /// </summary>
         public void Enable()
         {
-            _irqPin.EnableInterrupt();
-            _cePin.Write(true);
+            _enabled = true;
+            SetEnabled();
         }
 
         /// <summary>
@@ -74,8 +75,8 @@ namespace Gralin.NETMF.Nordic
         /// </summary>
         public void Disable()
         {
-            _cePin.Write(false);
-            _irqPin.DisableInterrupt();
+            _enabled = false;
+            SetDisabled();
         }
 
         /// <summary>
@@ -210,13 +211,9 @@ namespace Gralin.NETMF.Nordic
         {
             CheckIsInitialized();
 
-            var wasEnabled = IsEnabled;
-
             // This command requires module to be in power down or standby mode
             if (command == Commands.W_REGISTER)
-            {
-                Disable();
-            }
+                SetDisabled();
 
             // Create SPI Buffers with Size of Data + 1 (For Command)
             var writeBuffer = new byte[data.Length + 1];
@@ -232,10 +229,8 @@ namespace Gralin.NETMF.Nordic
             _spiPort.WriteRead(writeBuffer, readBuffer);
 
             // Enable module back if it was disabled
-            if (command == Commands.W_REGISTER && wasEnabled)
-            {
-                Enable();
-            }
+            if (command == Commands.W_REGISTER && _enabled)
+                SetEnabled();
 
             // Return ReadBuffer
             return readBuffer;
@@ -260,7 +255,7 @@ namespace Gralin.NETMF.Nordic
         public void SendTo(byte[] address, byte[] bytes)
         {
             // Chip enable low
-            Disable();
+            SetDisabled();
 
             // Setup PTX (Primary TX)
             SetTransmitMode();
@@ -275,24 +270,34 @@ namespace Gralin.NETMF.Nordic
             Execute(Commands.W_TX_PAYLOAD, 0x00, bytes);
 
             // Pulse for CE -> starts the transmission.
-            Enable();
+            SetEnabled();
         }
 
         private void HandleInterrupt(uint data1, uint data2, DateTime dateTime)
         {
             if (!_initialized)
+                return;
+
+            if (!_enabled)
             {
+                // Flush RX FIFO
+                Execute(Commands.FLUSH_RX, 0x00, new byte[0]);
+                // Flush TX FIFO 
+                Execute(Commands.FLUSH_TX, 0x00, new byte[0]);
                 return;
             }
 
             // Disable RX/TX
-            Disable();
+            SetDisabled();
 
             // Set PRX
             SetReceiveMode();
 
+            // there are 3 rx pipes in rf module so 3 arrays should be enough to store incoming data
+            // sometimes though more than 3 data packets are received somehow
+            var payloads = new byte[6][];
+            
             var status = GetStatus();
-            var payloads = new byte[3][];
             byte payloadCount = 0;
             var payloadCorrupted = false;
 
@@ -315,9 +320,17 @@ namespace Gralin.NETMF.Nordic
                     }
                     else
                     {
-                        // Read payload data
-                        payloads[payloadCount] = Execute(Commands.R_RX_PAYLOAD, 0x00, new byte[payloadLength[1]]);
-                        payloadCount++;
+                        if (payloadCount >= payloads.Length)
+                        {
+                            Debug.Print("Unexpected payloadCount value = " + payloadCount);
+                            Execute(Commands.FLUSH_RX, 0x00, new byte[0]);
+                        }
+                        else
+                        {
+                            // Read payload data
+                            payloads[payloadCount] = Execute(Commands.R_RX_PAYLOAD, 0x00, new byte[payloadLength[1]]);
+                            payloadCount++;
+                        }
                     }
 
                     // Clear RX_DR bit 
@@ -348,7 +361,7 @@ namespace Gralin.NETMF.Nordic
             }
 
             // Enable RX
-            Enable();
+            SetEnabled(); 
 
             if (payloadCorrupted)
             {
@@ -356,7 +369,10 @@ namespace Gralin.NETMF.Nordic
             }
             else if (payloadCount > 0)
             {
-                for (var i = 0; i < payloadCount; i++)
+                if (payloadCount > payloads.Length)
+                    Debug.Print("Unexpected payloadCount value = " + payloadCount);
+
+                for (var i = 0; i < System.Math.Min(payloadCount, payloads.Length); i++)
                 {
                     var payload = payloads[i];
                     var payloadWithoutCommand = new byte[payload.Length - 1];
@@ -372,6 +388,18 @@ namespace Gralin.NETMF.Nordic
             {
                 OnTransmitFailed();
             }
+        }
+
+        private void SetEnabled()
+        {
+            _irqPin.EnableInterrupt();
+            _cePin.Write(true);   
+        }
+
+        private void SetDisabled()
+        {
+            _cePin.Write(false);
+            _irqPin.DisableInterrupt();
         }
 
         private void SetTransmitMode()
