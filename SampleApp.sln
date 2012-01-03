@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\SampleApp.csproj", "{DAE44D77-9977-4E10-8549-F37E822CCEF7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "Samples\SampleApp\SampleApp.csproj", "{DAE44D77-9977-4E10-8549-F37E822CCEF7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gralin.NETMF.Nordic.NRF24L01Plus", "Gralin.NETMF.Nordic.NRF24L01Plus\Gralin.NETMF.Nordic.NRF24L01Plus.csproj", "{4FDE741E-003F-435C-9BA6-6051DE16795F}"
 EndProject

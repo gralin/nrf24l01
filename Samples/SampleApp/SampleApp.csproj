@@ -43,7 +43,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\Gralin.NETMF.Nordic.NRF24L01Plus.csproj">
+    <ProjectReference Include="..\..\Gralin.NETMF.Nordic.NRF24L01Plus\Gralin.NETMF.Nordic.NRF24L01Plus.csproj">
       <Project>{4FDE741E-003F-435C-9BA6-6051DE16795F}</Project>
       <Name>Gralin.NETMF.Nordic.NRF24L01Plus</Name>
     </ProjectReference>
