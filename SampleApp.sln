@@ -5,6 +5,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\Samp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gralin.NETMF.Nordic.NRF24L01Plus", "Gralin.NETMF.Nordic.NRF24L01Plus\Gralin.NETMF.Nordic.NRF24L01Plus.csproj", "{4FDE741E-003F-435C-9BA6-6051DE16795F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "InFieldUpdate", "InFieldUpdate", "{F0A8A9D2-0DEA-44BC-AA19-938A18F66659}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppSender", "Samples\InFieldUpdate\AppSender\AppSender.csproj", "{FB46562B-9F96-4B95-898F-164D9E733D57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USBiziApp", "Samples\InFieldUpdate\USBiziApp\USBiziApp.csproj", "{7EE8F882-D63F-4FE0-8962-57AA21EB47F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USBiziBootloader", "Samples\InFieldUpdate\USBiziBootloader\USBiziBootloader.csproj", "{490AB173-8066-4C7D-9C87-84CFD3DDD797}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,8 +29,31 @@ Global
 		{4FDE741E-003F-435C-9BA6-6051DE16795F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FDE741E-003F-435C-9BA6-6051DE16795F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FDE741E-003F-435C-9BA6-6051DE16795F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{490AB173-8066-4C7D-9C87-84CFD3DDD797}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{490AB173-8066-4C7D-9C87-84CFD3DDD797}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{490AB173-8066-4C7D-9C87-84CFD3DDD797}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{490AB173-8066-4C7D-9C87-84CFD3DDD797}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{490AB173-8066-4C7D-9C87-84CFD3DDD797}.Release|Any CPU.Build.0 = Release|Any CPU
+		{490AB173-8066-4C7D-9C87-84CFD3DDD797}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{FB46562B-9F96-4B95-898F-164D9E733D57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB46562B-9F96-4B95-898F-164D9E733D57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB46562B-9F96-4B95-898F-164D9E733D57}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{FB46562B-9F96-4B95-898F-164D9E733D57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB46562B-9F96-4B95-898F-164D9E733D57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB46562B-9F96-4B95-898F-164D9E733D57}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{7EE8F882-D63F-4FE0-8962-57AA21EB47F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EE8F882-D63F-4FE0-8962-57AA21EB47F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EE8F882-D63F-4FE0-8962-57AA21EB47F1}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{7EE8F882-D63F-4FE0-8962-57AA21EB47F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EE8F882-D63F-4FE0-8962-57AA21EB47F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EE8F882-D63F-4FE0-8962-57AA21EB47F1}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{490AB173-8066-4C7D-9C87-84CFD3DDD797} = {F0A8A9D2-0DEA-44BC-AA19-938A18F66659}
+		{FB46562B-9F96-4B95-898F-164D9E733D57} = {F0A8A9D2-0DEA-44BC-AA19-938A18F66659}
+		{7EE8F882-D63F-4FE0-8962-57AA21EB47F1} = {F0A8A9D2-0DEA-44BC-AA19-938A18F66659}
 	EndGlobalSection
 EndGlobal
