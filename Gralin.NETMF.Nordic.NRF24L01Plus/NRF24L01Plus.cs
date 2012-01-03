@@ -52,6 +52,8 @@ namespace Gralin.NETMF.Nordic
         private InterruptPort _irqPin;
         private SPI _spiPort;
         private bool _enabled;
+        private readonly ManualResetEvent _transmitSuccessFlag;
+        private readonly ManualResetEvent _transmitFailedFlag;
 
         /// <summary>
         ///   Gets a value indicating whether module is enabled (RX or TX mode).
@@ -59,6 +61,12 @@ namespace Gralin.NETMF.Nordic
         public bool IsEnabled
         {
             get { return _cePin.Read(); }
+        }
+
+        public NRF24L01Plus()
+        {
+            _transmitSuccessFlag = new ManualResetEvent(false);
+            _transmitFailedFlag = new ManualResetEvent(false);
         }
 
         /// <summary>
@@ -168,6 +176,14 @@ namespace Gralin.NETMF.Nordic
             _slot0Address = address;
             Execute(Commands.W_REGISTER, (byte)AddressSlot.Zero, address);
 
+            // Set retransmission values
+            Execute(Commands.W_REGISTER, Registers.SETUP_RETR,
+                    new[]
+                        {
+                            (byte) (0x0F << Bits.ARD |
+                                    0x0F << Bits.ARC)
+                        });
+
             // Setup, CRC enabled, Power Up, PRX
             SetReceiveMode();
         }
@@ -251,6 +267,7 @@ namespace Gralin.NETMF.Nordic
 
         /// <summary>
         ///   Send <param name = "bytes">bytes</param> to given <param name = "address">address</param>
+        ///   This is a non blocking method.
         /// </summary>
         public void SendTo(byte[] address, byte[] bytes)
         {
@@ -271,6 +288,31 @@ namespace Gralin.NETMF.Nordic
 
             // Pulse for CE -> starts the transmission.
             SetEnabled();
+        }
+
+        /// <summary>
+        ///   Sends <param name = "bytes">bytes</param> to given <param name = "address">address</param>
+        ///   This is a blocking method that returns true if data was received by the recipient or false if timeout occured.
+        /// </summary>
+        public bool SendTo(byte[] address, byte[] bytes, int timeout)
+        {
+            var startTime = DateTime.Now;
+
+            while (true)
+            {
+                _transmitSuccessFlag.Reset();
+                _transmitFailedFlag.Reset();
+
+                SendTo(address, bytes);
+
+                if (WaitHandle.WaitAny(new[] { _transmitSuccessFlag, _transmitFailedFlag }, 200, true) == 0)
+                    return true;
+
+                if (DateTime.Now.CompareTo(startTime.AddMilliseconds(timeout)) > 0)
+                    return false;
+
+                Debug.Print("Retransmitting packet...");
+            }
         }
 
         private void HandleInterrupt(uint data1, uint data2, DateTime dateTime)
@@ -382,10 +424,12 @@ namespace Gralin.NETMF.Nordic
             }
             else if (status.DataSent)
             {
+                _transmitSuccessFlag.Set();
                 OnTransmitSuccess();
             }
             else
             {
+                _transmitFailedFlag.Set();
                 OnTransmitFailed();
             }
         }
