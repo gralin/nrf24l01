@@ -266,6 +266,39 @@ namespace Gralin.NETMF.Nordic
         }
 
         /// <summary>
+        ///   Reads the current rf channel value set in module
+        /// </summary>
+        /// <returns></returns>
+        public byte GetChannel()
+        {
+            CheckIsInitialized();
+
+            var result = Execute(Commands.R_REGISTER, Registers.RF_CH, new byte[1]);
+            return result[1];
+        }
+
+        /// <summary>
+        ///   Gets the module radio frequency [MHz]
+        /// </summary>
+        /// <returns>Frequency in MHz</returns>
+        public int GetFrequency()
+        {
+            return 2400 + GetChannel();
+        }
+
+        /// <summary>
+        ///   Sets the rf channel value used by all data pipes
+        /// </summary>
+        /// <param name="channel">7 bit channel value</param>
+        public void SetChannel(byte channel)
+        {
+            CheckIsInitialized();
+
+            var writeBuffer = new[] {(byte) (channel & 0x7F)};
+            Execute(Commands.W_REGISTER, Registers.RF_CH, writeBuffer);
+        }
+
+        /// <summary>
         ///   Send <param name = "bytes">bytes</param> to given <param name = "address">address</param>
         ///   This is a non blocking method.
         /// </summary>
