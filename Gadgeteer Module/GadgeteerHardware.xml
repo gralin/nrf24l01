@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<GadgeteerDefinitions xmlns="http://schemas.microsoft.com/Gadgeteer/2011/Hardware">
+  <ModuleDefinitions>
+    <ModuleDefinition Name="Nordic"
+                  UniqueId="1535329e-67c2-4dfd-9468-308d99acbf36"
+                  Manufacturer="Gralin"
+                  Description="Nordic NRF24L01+ module"
+                  InstanceName="Nordic"
+                  Type="Gadgeteer.Modules.Gralin.Nordic"
+                  ModuleSuppliesPower="false"
+                  HardwareVersion="1.0"
+                  Image="Resources\Image.jpg"
+                  BoardHeight="25"
+                  BoardWidth="44"
+                  MinimumGadgeteerCoreVersion="2.41.100"
+                  HelpUrl="">
+      
+      <Assemblies>
+        <Assembly MFVersion="4.1" Name="GTM.Gralin.Nordic"/>
+      </Assemblies>
+
+      <Sockets>
+        <Socket Left="5" Top="9" Orientation="0" ConstructorOrder="1" TypesLabel="S" Optional="false">
+          <Types>
+            <Type>S</Type>
+          </Types>
+          <Pins>
+            <Pin Shared="false">3</Pin>
+            <Pin Shared="false">4</Pin>
+            <Pin Shared="false">6</Pin>
+            <Pin Shared="true">7</Pin>
+            <Pin Shared="true">8</Pin>
+            <Pin Shared="true">9</Pin>
+          </Pins>
+        </Socket>
+      </Sockets>      
+      
+      <!-- Use this tag if the module requires specific libraries provided by the mainboard or by other modules -->      
+      <!--
+      <ExtraLibrariesRequired>
+        <Assembly MFVersion="4.1" Name="FooHelper"/>
+      </ExtraLibrariesRequired>
+      -->
+      
+      <!-- Use this tag if the module provides libraries that may be required by other modules-->
+      <!--
+      <LibrariesProvided>
+        <Assembly MFVersion="4.1" Name="FooHelper"/>
+      </LibrariesProvided>
+      -->
+
+    </ModuleDefinition>
+  </ModuleDefinitions>
+</GadgeteerDefinitions>

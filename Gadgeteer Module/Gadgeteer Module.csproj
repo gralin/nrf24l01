@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <!--VS2010 product version-->
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{216061A9-994E-466A-A54E-519B87CDC1BF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Gadgeteer.Modules.Gralin</RootNamespace>
+    <AssemblyName>GTM.Gralin.Nordic</AssemblyName>
+    <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <!--Identify this as a MicroFramework, CSharp project-->
+    <ProjectTypeGuids>{b69e3092-b931-443c-abe7-7e7b65f2a37f};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <!--This entry seems to be specific to NET MF projects-->
+    <NetMfTargetsBaseDir Condition="'$(NetMfTargetsBaseDir)'==''">$(MSBuildExtensionsPath32)\Microsoft\.NET Micro Framework\</NetMfTargetsBaseDir>
+    <!-- Default transport and device-->
+    <DeployDevice>Gadgeteer</DeployDevice>
+    <DeployTransport>USB</DeployTransport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\NETMF\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\NETMF\GTM.Gralin.Nordic.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\NETMF\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\NETMF\GTM.Gralin.Nordic.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
+  <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
+  <ItemGroup>
+    <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\AddressSlot.cs">
+      <Link>NRF24L01Plus\AddressSlot.cs</Link>
+    </Compile>
+    <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\AddressWidth.cs">
+      <Link>NRF24L01Plus\AddressWidth.cs</Link>
+    </Compile>
+    <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\Bits.cs">
+      <Link>NRF24L01Plus\Bits.cs</Link>
+    </Compile>
+    <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\Commands.cs">
+      <Link>NRF24L01Plus\Commands.cs</Link>
+    </Compile>
+    <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\NRF24L01Plus.cs">
+      <Link>NRF24L01Plus\NRF24L01Plus.cs</Link>
+    </Compile>
+    <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\Registers.cs">
+      <Link>NRF24L01Plus\Registers.cs</Link>
+    </Compile>
+    <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\Status.cs">
+      <Link>NRF24L01Plus\Status.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Nordic.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Gadgeteer">
+      <SpecificVersion>false</SpecificVersion>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.SPOT.Hardware" />
+    <Reference Include="Microsoft.SPOT.IO" />
+    <Reference Include="Microsoft.SPOT.Native" />
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.IO" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GadgeteerHardware.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceFiles Include="Resources\Image.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Setup\msm.wxs" />
+    <None Include="Setup\en-us.wxl" />
+    <None Include="Setup\common.wxi" />
+    <None Include="Setup\msi.wxs" />
+    <None Include="Setup\G.ico" />
+  </ItemGroup>
+  <!--Stuff for wix-->
+  <PropertyGroup>
+    <WixTasksPath Condition=" '$(WixTasksPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\WixTasks.dll</WixTasksPath>
+    <WixTasksPath Condition=" '$(WixTasksPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\WixTasks.dll</WixTasksPath>
+    <WixToolPath Condition=" '$(WixToolPath)' == ''">$(Registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Installer XML\3.5@InstallRoot)</WixToolPath>
+    <WixToolPath Condition=" '$(WixToolPath)' == ''">$(Registry:HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows Installer XML\3.5@InstallRoot)</WixToolPath>
+    <WixExtDir Condition=" '$(WixExtDir)' == ''">$(WixToolPath)</WixExtDir>
+    <WixIntermediateFolderPath>$(IntermediateOutputPath)\..\Installer</WixIntermediateFolderPath>
+    <WixOutputFolderPath>$(OutDir)\..\Installer</WixOutputFolderPath>
+    <IsInstallerBuildEnabled Condition="! $(DefineConstants.Contains('DEBUG'))">true</IsInstallerBuildEnabled>
+  </PropertyGroup>
+  <UsingTask TaskName="Candle" AssemblyFile="$(WixTasksPath)" />
+  <UsingTask TaskName="Light" AssemblyFile="$(WixTasksPath)" />
+  <!--Build for installer -->
+  <Target Name="AfterBuild" Condition="'$(IsInstallerBuildEnabled)' == 'true'">
+    <Message Text="Compiling msm" />
+    <Candle ToolPath="$(WixToolPath)" DefineConstants="BinPath=$(OutDir);SourcePath=$(ProjectDir)" SourceFiles="setup\msm.wxs" OutputFile="$(WixIntermediateFolderPath)\msm.wixobj" />
+    <Message Text="Linking msm" />
+    <Light ToolPath="$(WixToolPath)" LocalizationFiles="setup\en-us.wxl" ObjectFiles="$(WixIntermediateFolderPath)\msm.wixobj" OutputFile="$(WixOutputFolderPath)\Nordic.msm" />
+    <Message Text="Compiling msi" />
+    <Candle ToolPath="$(WixToolPath)" DefineConstants="BinPath=$(OutDir);SourcePath=$(ProjectDir)" SourceFiles="setup\msi.wxs" OutputFile="$(WixIntermediateFolderPath)\msi.wixobj" />
+    <Message Text="Linking msi" />
+    <Light ToolPath="$(WixToolPath)" LocalizationFiles="setup\en-us.wxl" ObjectFiles="$(WixIntermediateFolderPath)\msi.wixobj" OutputFile="$(WixOutputFolderPath)\Nordic.msi" />
+  </Target>
+  <!--Cleanup for installer -->
+  <Target Name="AfterClean">
+    <Message Text="Cleaning up installer" />
+    <ItemGroup>
+      <InstallerFiles Include="$(WixIntermediateFolderPath)\*" />
+      <InstallerFiles Include="$(WixOutputFolderPath)\*" />
+    </ItemGroup>
+    <Delete Files="@(InstallerFiles)" />
+  </Target>
+</Project>

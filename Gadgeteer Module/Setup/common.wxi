@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include>
+  <!-- This file includes global constants for the module installer.  Module manufacturers should change the below to customise this 
+  template to their module. -->
+  
+  <!-- Change this whenever building a new installer.  The fourth number is ignored, so change one of the top three.
+  Otherwise, users will not be able to upgrade properly; Windows Installer will exit with an error instead of upgrading. -->
+  <!-- Also change the version numbers in Properties/AssemblyInfo.cs -->
+  <?define ModuleSoftwareVersion = "1.0.0.0" ?>
+
+  <!-- SafeModuleName should match the module name printed on the module PCB, without any spaces/punctuation. -->
+  <?define SafeModuleName = "Nordic" ?>
+
+  <!-- SafeManufacturer should match the manufacturer name printed on the module PCB, without any spaces/punctuation. -->
+  <?define SafeManufacturer = "Gralin" ?>
+
+  <!-- FullManfacturer can have spaces, e.g. Microsoft Research.  This shows up as the manufacturer name in add/remove programs. -->
+  <?define FullManufacturer = "Jakub Bartkowiak" ?>
+
+  <!-- No need to change anything below this line. -->
+  <?define OutputFileName = "GTM.$(var.SafeManufacturer).$(var.SafeModuleName)"?>
+  
+  <?define RegistryKeyNetMF41 = "SOFTWARE\Microsoft\.NETMicroFramework\v4.1\AssemblyFoldersEx\$(var.OutputFileName)"?>
+  <?define RegistryKeyVSAddin = "SOFTWARE\Microsoft\.NETGadgeteer\v2\HardwareDefinitionFolders\$(var.OutputFileName)" ?>
+  
+  <?define guid_msm_comp_files_id = "c9a1d22b-6412-4b42-b40c-b69e84281d5a" ?>
+  <?define guid_msm_comp_files_be_id = "6a9f5079-bc99-4186-8b0e-d28c55f49f2d" ?>
+  <?define guid_msm_comp_files_le_id = "9ada163c-0dbd-4615-ba3d-3485c5170bda" ?>
+  <?define guid_msm_comp_resources_id = "c7cce91b-f7f8-485c-b0f8-30cee7bf2d2e" ?>
+  <?define guid_msm_comp_registry_id = "5845214c-9c26-4bdd-8db9-2afa538f8a9e" ?>
+  
+  <?define guid_msi_upgrade_code =  "3f9e0637-3a7f-45a7-b17d-2012d88228df" ?>
+
+  <?define guid_msm_package_id = "7f608f7f-852b-4ba7-9a1e-4ca3d9fe78eb" ?>
+  <?define guid_msm_comp_gadgeteerhardware_id = "9f43248c-1ed4-435b-bced-fb1c03319589"?>
+    
+</Include>
