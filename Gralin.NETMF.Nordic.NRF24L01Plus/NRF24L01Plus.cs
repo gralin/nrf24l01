@@ -1,6 +1,6 @@
 #region Licence
 
-// Copyright (C) 2011 by Jakub Bartkowiak (Gralin)
+// Copyright (C) 2012 by Jakub Bartkowiak (Gralin)
 // 
 // MIT Licence
 // 
@@ -94,7 +94,7 @@ namespace Gralin.NETMF.Nordic
         {
             // Chip Select : Active Low
             // Clock : Active High, Data clocked in on rising edge
-            _spiPort = new SPI(new SPI.Configuration(chipSelectPin, false, 0, 0, false, false, 2000, spi));
+            _spiPort = new SPI(new SPI.Configuration(chipSelectPin, false, 0, 0, false, true, 2000, spi));
 
             // Initialize IRQ Port
             _irqPin = new InterruptPort(interruptPin, false, Port.ResistorMode.PullUp,
@@ -274,7 +274,7 @@ namespace Gralin.NETMF.Nordic
             CheckIsInitialized();
 
             var result = Execute(Commands.R_REGISTER, Registers.RF_CH, new byte[1]);
-            return result[1];
+            return (byte) (result[1] & 0x7F);
         }
 
         /// <summary>
