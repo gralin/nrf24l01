@@ -302,7 +302,7 @@ namespace Gralin.NETMF.Nordic
         ///   Send <param name = "bytes">bytes</param> to given <param name = "address">address</param>
         ///   This is a non blocking method.
         /// </summary>
-        public void SendTo(byte[] address, byte[] bytes)
+        public void SendTo(byte[] address, byte[] bytes, Acknowledge acknowledge = Acknowledge.Yes)
         {
             // Chip enable low
             SetDisabled();
@@ -317,7 +317,7 @@ namespace Gralin.NETMF.Nordic
             Execute(Commands.W_REGISTER, Registers.RX_ADDR_P0, address);
 
             // Send payload
-            Execute(Commands.W_TX_PAYLOAD, 0x00, bytes);
+            Execute(acknowledge == Acknowledge.Yes ? Commands.W_TX_PAYLOAD : Commands.W_TX_PAYLOAD_NO_ACK, 0x00, bytes);
 
             // Pulse for CE -> starts the transmission.
             SetEnabled();
