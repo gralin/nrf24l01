@@ -45,6 +45,9 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
+    <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\Acknowledge.cs">
+      <Link>NRF24L01Plus\Acknowledge.cs</Link>
+    </Compile>
     <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\AddressSlot.cs">
       <Link>NRF24L01Plus\AddressSlot.cs</Link>
     </Compile>
