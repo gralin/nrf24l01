@@ -63,6 +63,9 @@
     <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\NRF24L01Plus.cs">
       <Link>NRF24L01Plus\NRF24L01Plus.cs</Link>
     </Compile>
+    <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\NRFDataRate.cs">
+      <Link>NRF24L01Plus\NRFDataRate.cs</Link>
+    </Compile>
     <Compile Include="..\Gralin.NETMF.Nordic.NRF24L01Plus\Registers.cs">
       <Link>NRF24L01Plus\Registers.cs</Link>
     </Compile>

@@ -117,6 +117,17 @@ namespace Gralin.NETMF.Nordic
         /// <param name="channel">RF channel (0-127)</param>
         public void Configure(byte[] address, byte channel)
         {
+			Configure( address, channel, NRFDataRate.DR2Mbps );
+		}
+		
+		/// <summary>
+        /// Configure the module basic settings. Module needs to be initiaized.
+        /// </summary>
+        /// <param name="address">RF address (3-5 bytes). The width of this address determins the width of all addresses used for sending/receiving.</param>
+        /// <param name="channel">RF channel (0-127)</param>
+        /// <param name="dataRate">Data Rate to use</param>
+        public void Configure(byte[] address, byte channel, NRFDataRate dataRate)
+        {
             CheckIsInitialized();
             AddressWidth.Check(address);
 
@@ -127,7 +138,33 @@ namespace Gralin.NETMF.Nordic
                             (byte) (channel & 0x7F) // channel is 7 bits
                         });
 
-            // Enable dynamic payload length
+			// Set Data rate
+			var regValue = Execute(Commands.R_REGISTER, Registers.RF_SETUP, new byte[1])[1];			
+
+			switch ( dataRate ) 
+            {
+                case NRFDataRate.DR1Mbps:
+			        regValue &=  (byte)~(1 << Bits.RF_DR_LOW);  // 0
+			        regValue &=  (byte)~(1 << Bits.RF_DR_HIGH); // 0
+                    break;
+
+                case NRFDataRate.DR2Mbps:
+                    regValue &=  (byte)~(1 << Bits.RF_DR_LOW);  // 0
+			        regValue |=  (byte)(1 << Bits.RF_DR_HIGH);  // 1
+					break;
+
+                case NRFDataRate.DR250kbps:
+                    regValue |=  (byte)(1 << Bits.RF_DR_LOW);   // 1
+			        regValue &=  (byte)~(1 << Bits.RF_DR_HIGH); // 0
+					break;
+
+                default:
+                    throw new ArgumentOutOfRangeException("dataRate");
+			}	  
+
+			Execute(Commands.W_REGISTER, Registers.RF_SETUP, new[]{regValue});			
+			
+			// Enable dynamic payload length
             Execute(Commands.W_REGISTER, Registers.FEATURE,
                     new[]
                         {
