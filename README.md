@@ -2,6 +2,8 @@
 
 Library that enables .NET Micro Framework developers to use Nordic 2.4 GHz wireless tranceivers. This library can be used on any net mf device. It uses SPI to communicate with the module. Developers can send serial data (max 32 byte per packet) from one board to specified receiver address. Each board can have up to 6 addresses (receive packets sent to those addresses).
 
+![](http://i.imgur.com/rxupWVV.png)
+
 ## Key features of nRF24L01+ chip
 
 * Low cost (complete module costs aprox. 7 USD)
